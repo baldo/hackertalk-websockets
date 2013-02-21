@@ -1,0 +1,42 @@
+<html>
+<head>
+
+<!-- served via node.js -->
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+<script>
+
+// connect to the node.js http server on which the socket.io server socket
+// is listening
+var socket = io.connect("http://localhost:3000");
+
+// sending a message
+function sendChatMessage() {
+    // get text
+    var element = document.getElementsByName("chat-message")[0];
+    var text = element.value;
+    element.value = ""
+
+    // socket.io supports sending json
+    socket.json.send({text: text});
+}
+
+// receiving a "message"
+socket.on("message", function (payload) {
+    var ul = document.getElementById("chat-log");
+    var li = document.createElement("li");
+    li.appendChild(document.createTextNode("[" + payload.time + "] " + payload.text));
+    ul.appendChild(li);
+});
+
+</script>
+
+</head>
+<body>
+    <input type="text" name="chat-message" /><button onclick="sendChatMessage();">send</button>
+
+    <ul id="chat-log">
+    </ul>
+</body>
+</html>
+

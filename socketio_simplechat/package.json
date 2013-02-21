@@ -1,0 +1,7 @@
+{
+    "name": "hackertalk-websockets-io-simplechat",
+    "version": "0.0.0",
+    "dependencies": {
+        "socket.io": "0.9.x"
+    }
+}
