@@ -1,0 +1,31 @@
+<html>
+<head>
+
+<!-- served via node.js -->
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+<script>
+
+// connect to the node.js http server on which the socket.io server socket
+// is listening
+var socket = io.connect("http://localhost:3000");
+
+// sending a "message"
+function ping() {
+    socket.send("ping");
+}
+
+// receiving a "message"
+socket.on("message", function (payload) {
+    alert(payload);
+});
+
+</script>
+
+</head>
+<body>
+    <button onclick="ping();">ping</button>
+
+</body>
+</html>
+
