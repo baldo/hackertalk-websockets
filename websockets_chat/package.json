@@ -1,0 +1,7 @@
+{
+    "name": "hackertalk-websockets-ws-chat",
+    "version": "0.0.0",
+    "dependencies": {
+        "websocket": "1.0.x"
+    }
+}

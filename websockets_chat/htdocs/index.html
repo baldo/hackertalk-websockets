@@ -1,0 +1,42 @@
+<html>
+<head>
+
+<script>
+
+
+// connect to the node.js http server on which the websocket server socket
+// is listening
+var socket = new WebSocket("ws://" + window.location.hostname + ":3000");
+
+// sending a message
+function sendChatMessage() {
+    // get text
+    var element = document.getElementsByName("chat-message")[0];
+    var text = element.value;
+    element.value = ""
+
+    // websockets only support sending strings
+    socket.send(JSON.stringify({text: text}));
+}
+
+// receiving a message
+socket.onmessage = function (message) {
+    var payload = JSON.parse(message.data);
+
+    var ul = document.getElementById("chat-log");
+    var li = document.createElement("li");
+    li.appendChild(document.createTextNode("[" + payload.time + "] " + payload.text));
+    ul.appendChild(li);
+};
+
+</script>
+
+</head>
+<body>
+    <input type="text" name="chat-message" /><button onclick="sendChatMessage();">send</button>
+
+    <ul id="chat-log">
+    </ul>
+</body>
+</html>
+
