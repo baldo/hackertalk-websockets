@@ -1,0 +1,30 @@
+<html>
+<head>
+
+<script>
+
+
+// connect to the node.js http server on which the websocket server socket
+// is listening
+var socket = new WebSocket("ws://localhost:3000");
+
+// sending a "message"
+function ping() {
+    socket.send("ping");
+}
+
+// receiving a message
+socket.onmessage = function (message) {
+    var payload = message.data;
+    alert(payload);
+};
+
+</script>
+
+</head>
+<body>
+    <button onclick="ping();">ping</button>
+
+</body>
+</html>
+
