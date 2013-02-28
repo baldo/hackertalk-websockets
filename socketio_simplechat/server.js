@@ -19,17 +19,38 @@ var serverSocket = io.listen(httpServer);
 serverSocket.on("connection", function (clientSocket) {
     console.log("New connection.");
 
+    var nick = null;
+
+    function broadcast(payload) {
+        // add the time to make stuff a little more interesting
+        payload.time = new Date().toTimeString().split(" ")[0];
+
+        if (nick) {
+            payload.nick = nick;
+        }
+
+        console.log("Broadcasting:", payload);
+
+        // broadcast does not include the client belonging to clientSocket
+        clientSocket.broadcast.json.send(payload);
+        clientSocket.json.send(payload);
+    }
+
+    broadcast({text: "Someone joined the chat."});
+
     // listen for messages from the specific client
     clientSocket.on("message", function (payload) {
         console.log("Got:", payload);
 
-        // add the time to make stuff a little more interesting
-        payload.time = new Date().toTimeString().split(" ")[0];
+        if (payload.nick) {
+            nick = payload.nick;
+        } else if (payload.text) {
+            broadcast(payload);
+        }
+    });
 
-        console.log("Broadcasting:", payload);
-        // broadcast does not include the client belonging to clientSocket
-        clientSocket.broadcast.json.send(payload);
-        clientSocket.json.send(payload);
+    clientSocket.on("disconnect", function () {
+        broadcast({text: "Leaving..."});
     });
 });
 
