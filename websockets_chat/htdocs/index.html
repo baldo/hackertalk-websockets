@@ -3,17 +3,27 @@
 
 <script>
 
-
 // connect to the node.js http server on which the websocket server socket
 // is listening
 var socket = new WebSocket("ws://" + window.location.hostname + ":3000");
+
+// set the nick
+function setNick() {
+    // get nick
+    var element = document.getElementsByName("nick")[0];
+    var nick = element.value;
+    element.value = "";
+
+    // websockets only support sending strings
+    socket.send(JSON.stringify({nick: nick}));
+}
 
 // sending a message
 function sendChatMessage() {
     // get text
     var element = document.getElementsByName("chat-message")[0];
     var text = element.value;
-    element.value = ""
+    element.value = "";
 
     // websockets only support sending strings
     socket.send(JSON.stringify({text: text}));
@@ -25,7 +35,14 @@ socket.onmessage = function (message) {
 
     var ul = document.getElementById("chat-log");
     var li = document.createElement("li");
-    li.appendChild(document.createTextNode("[" + payload.time + "] " + payload.text));
+
+    var entry = "";
+    if (payload.nick) {
+        entry += "<" + payload.nick + "> ";
+    }
+    entry += "[" + payload.time + "] " + payload.text;
+
+    li.appendChild(document.createTextNode(entry));
     ul.appendChild(li);
 };
 
@@ -33,7 +50,8 @@ socket.onmessage = function (message) {
 
 </head>
 <body>
-    <input type="text" name="chat-message" /><button onclick="sendChatMessage();">send</button>
+    <input type="text" name="nick" /><button onclick="setNick();">set nick</button><br />
+    <input type="text" name="chat-message" /><button onclick="sendChatMessage();">send message</button>
 
     <ul id="chat-log">
     </ul>

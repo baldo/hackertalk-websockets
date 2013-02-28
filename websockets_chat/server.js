@@ -20,16 +20,36 @@ var serverSocket = new WebSocketServer({
 serverSocket.on("connect", function (clientSocket) {
     console.log("New connection.");
 
+    var nick = null;
+
+    function broadcast(payload) {
+        // add the time to make stuff a little more interesting
+        payload.time = new Date().toTimeString().split(" ")[0];
+
+        if (nick) {
+            payload.nick = nick;
+        }
+
+        console.log("Broadcasting:", payload);
+        serverSocket.broadcast(JSON.stringify(payload));
+    }
+
+    broadcast({text: "Someone joined the chat."});
+
     // listen for messages from the specific client
     clientSocket.on("message", function (message) {
         var payload = JSON.parse(message.utf8Data);
         console.log("Got:", payload);
 
-        // add the time to make stuff a little more interesting
-        payload.time = new Date().toTimeString().split(" ")[0];
+        if (payload.nick) {
+            nick = payload.nick;
+        } else if (payload.text) {
+            broadcast(payload);
+        }
+    });
 
-        console.log("Broadcasting:", payload);
-        serverSocket.broadcast(JSON.stringify(payload));
+    clientSocket.on("close", function () {
+        broadcast({text: "Leaving..."});
     });
 });
 
