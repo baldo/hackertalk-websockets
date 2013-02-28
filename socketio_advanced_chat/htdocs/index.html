@@ -1,0 +1,82 @@
+<html>
+<head>
+
+<!-- served via node.js -->
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+
+<script>
+
+// connect to the node.js http server on which the socket.io server socket
+// is listening and use the namespace "chat".
+var chatSocket = io.connect("http://localhost:3000/chat");
+
+// set the nick
+function setNick() {
+    // get nick
+    var element = document.getElementsByName("nick")[0];
+    var nick = element.value;
+    element.value = "";
+
+    // emitting "set-nick" event 
+    chatSocket.emit("set-nick", {nick: nick}, function (feedback) {
+        // called when the server acknowledges the message has been handled
+        alert(feedback);
+    });
+}
+
+// sending a message
+function sendChatMessage() {
+    // get text
+    var element = document.getElementsByName("chat-message")[0];
+    var text = element.value;
+    element.value = "";
+
+    // emitting "chat-message" event
+    chatSocket.emit("chat-message", {text: text});
+}
+
+// receiving a "message"
+chatSocket.on("chat-message", function (payload) {
+    var ul = document.getElementById("chat-log");
+    var li = document.createElement("li");
+
+    var entry = "";
+    if (payload.nick) {
+        entry += "<" + payload.nick + "> ";
+    }
+    entry += "[" + payload.time + "] " + payload.text;
+
+    li.appendChild(document.createTextNode(entry));
+    ul.appendChild(li);
+});
+
+
+// connect to the node.js http server on which the socket.io server socket
+// is listening and use the namespace "ping". this uses the same websocket
+// as the chat socket.
+var pingSocket = io.connect("http://localhost:3000/ping");
+
+// sending a "message"
+function ping() {
+    pingSocket.send("ping");
+}
+
+// receiving a "message"
+pingSocket.on("message", function (payload) {
+    alert(payload);
+});
+
+</script>
+
+</head>
+<body>
+    <button onclick="ping();">ping</button><br />
+
+    <input type="text" name="nick" /><button onclick="setNick();">set nick</button><br />
+    <input type="text" name="chat-message" /><button onclick="sendChatMessage();">send message</button>
+
+    <ul id="chat-log">
+    </ul>
+</body>
+</html>
+
